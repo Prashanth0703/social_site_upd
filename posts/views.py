@@ -64,10 +64,10 @@ class CreatePost(LoginRequiredMixin, SelectRelatedMixin, generic.CreateView):
         try:
             self.object = form.save(commit=False)
             self.object.user = self.request.user
-            # self.object.save()
+            self.object.save()
             return super(CreatePost,self).form_valid(form)
         except IntegrityError as e:
-            form.add_error('group','you aint a member')
+            form.add_error('message',"you can't send the same message again!")
             return super().form_invalid(form)
 
 class DeletePost(LoginRequiredMixin, SelectRelatedMixin, generic.DeleteView):
