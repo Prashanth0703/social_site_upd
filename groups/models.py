@@ -31,8 +31,8 @@ class Group(models.Model):
         self.description_html = misaka.html(self.description)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("groups:single", kwargs={"slug": self.slug})
+    def get_absolute_url(self,*args,**kwargs):
+        return reverse("groups:single", kwargs={"pk": self.pk})
 
 
     class Meta:
@@ -40,8 +40,8 @@ class Group(models.Model):
 
 
 class GroupMember(models.Model):
-    group = models.ForeignKey(Group, related_name="memberships",on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User,related_name='user_groups',on_delete=models.DO_NOTHING)
+    group = models.ForeignKey(Group, related_name="memberships",on_delete=models.CASCADE)
+    user = models.ForeignKey(User,related_name='user_groups',on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username

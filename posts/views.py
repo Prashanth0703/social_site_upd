@@ -1,12 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.db import IntegrityError
 from django.urls import reverse_lazy
 from django.http import Http404
 from django.views import generic
-
+from django.shortcuts import render
 from braces.views import SelectRelatedMixin
-
+from groups.models import Group
 from . import forms
 from . import models
 
@@ -60,12 +60,15 @@ class CreatePost(LoginRequiredMixin, SelectRelatedMixin, generic.CreateView):
     #     kwargs.update({"user": self.request.user})
     #     return kwargs
 
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
-        return super().form_valid(form)
-
+    def form_valid(self,form):
+        try:
+            self.object = form.save(commit=False)
+            self.object.user = self.request.user
+            # self.object.save()
+            return super(CreatePost,self).form_valid(form)
+        except IntegrityError as e:
+            form.add_error('group','you aint a member')
+            return super().form_invalid(form)
 
 class DeletePost(LoginRequiredMixin, SelectRelatedMixin, generic.DeleteView):
     model = models.Post
